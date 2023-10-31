@@ -1,0 +1,5 @@
+.vscode
+.gradle
+gradle*
+*.pyc
+output_dir*

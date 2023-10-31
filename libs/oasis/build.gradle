@@ -1,0 +1,36 @@
+plugins {
+    id 'java'
+    id "application"
+    id "com.github.johnrengelman.shadow" version "6.1.0"
+}
+
+group 'ch.usi'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+application {
+    mainClassName = "ch.usi.oasis.OASIs"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+configurations {
+    // configuration that holds jars to include in the jar
+    extraLibs
+}
+
+dependencies {
+    implementation files('../evosuite-master-1.0.5-SNAPSHOT.jar')
+    implementation 'com.github.javaparser:javaparser-core:3.6.26'
+}
+
+jar {
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}

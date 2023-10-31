@@ -1,0 +1,17 @@
+{
+    "root": "configs/guava-sut",
+    "classpaths": ["configs/guava-sut/target/classes"],
+    "sources": "configs/guava-sut/src/main/java",
+    "suts": {
+        "GuavaClass": {
+            "join": [0],
+            "indexOf": [0],
+            "meanOf": [0],
+            "min": [0],
+            "padStart": [0],
+            "truncate": [0],
+            "repeat": [0],
+            "sort": [0]
+        }
+    }
+}

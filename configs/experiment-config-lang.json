@@ -1,0 +1,48 @@
+{
+    "@": {
+        "paths": {
+            "output_dir": "output_dir_lang",
+            "build_dir": "build",
+            "instrumented_build_dir": "instrumented_build",
+            "instrumented_variables_build_dir": "instrumented_variables_build_dir",
+            "test_inputs_dir": "test_inputs",
+            "mutants_dir": "mutants",
+            "original_system_name": "original",
+            "states_dir": "states"
+        },
+        "test_inputs_generator": "evosuite",
+        "max_tests": 100,
+        "evosuite": {
+            "workdir": "evosuite{index}",
+            "random_seed": 0,
+            "num_executions": 3,
+            "time_budget_seconds": 300
+        },
+        "randoop": {
+            "workdir": "randoop{index}",
+            "random_seed": 0,
+            "num_executions": 3,
+            "time_budget_seconds": 300
+        },
+        "method_test_transformer": {
+            "constants_dir": "constants",
+            "transformations_file": "{system_id}.transformations.txt",
+            "test_inputs_dir": "test_inputs_transform",
+            "states_dir": "states_transform",
+            "classifications_regular_dir": "classifications_regular_transform"
+        },
+        "gassert": {
+            "tool": "GASSERT",
+            "states_updater": "NullStatesUpdater",
+            "initial_assertion": "false",
+            "random_seed": 0,
+            "time_budget_minutes": 30,
+            "mrips_count": 4,
+            "assertions_dir": "assertions",
+            "assertion_file": "{mrip}.txt",
+            "mrinfos_file": "{system_id}.mrinfo.csv",
+            "mrips_file": "{system_id}.mrip.txt",
+            "full_mr_file": "{system_id}_{mrip}_Full.txt"
+        }
+    }
+}

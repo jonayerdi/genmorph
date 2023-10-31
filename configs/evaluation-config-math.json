@@ -1,0 +1,40 @@
+{
+    "@": {
+        "paths": {
+            "output_dir": "output_dir_math",
+            "assertions_dir": "assertions_seed{seed}",
+            "states_dir": "states_seed{seed}",
+            "build_dir": "build",
+            "original_system_name": "original",
+            "instrumented_build_dir": "instrumented_build",
+            "mutants_dir": "mutants",
+            "transformations_file": "{system_id}.transformations.txt",
+            "mrs_dir": "mrs",
+            "test_inputs_dir": "evaluation_test_inputs",
+            "test_inputs_followup_dir": "evaluation_test_inputs_transform"
+        },
+        "test_inputs_generator": "randoop",
+        "max_tests": 100,
+        "evosuite": {
+            "workdir": "evosuite{index}",
+            "random_seed": 0,
+            "num_executions": 3,
+            "time_budget_seconds": 300
+        },
+        "randoop": {
+            "workdir": "randoop{index}",
+            "random_seed": 0,
+            "num_executions": 3,
+            "time_budget_seconds": 300
+        },
+        "pitest": {
+            "workdir": "pitest",
+            "tests_dir": "pitest_suite",
+            "tests_class_prefix": "TestSuite",
+            "mrs_status": "mrs_status.csv",
+            "mutants_killed": "mutants_killed.csv",
+            "random_seed": 0
+        },
+        "generation_seeds": []
+    }
+}

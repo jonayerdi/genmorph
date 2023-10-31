@@ -1,0 +1,19 @@
+{
+    "root": "configs/math-sut",
+    "classpaths": ["configs/math-sut/target/classes"],
+    "sources": "configs/math-sut/src/main/java",
+    "suts": {
+        "MathClass": {
+            "nextPrime": [0],
+            "millerRabinPrimeTest": [0],
+            "gcd": [0],
+            "pow": [0],
+            "stirlingS2": [0],
+            "acos": [0],
+            "log10": [0],
+            "sin": [0],
+            "sinh": [0],
+            "tan": [0]
+        }
+    }
+}

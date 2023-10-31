@@ -1,0 +1,42 @@
+{
+    "sut-config": "configs/sut-config-guava.json",
+    "experiment-config": "configs/experiment-config-guava.json",
+    "experiment-config-override": {
+        "@": {
+            "paths": {
+                "test_inputs_dir": "{$}_seed{seed}",
+                "test_inputs_followup_dir": "{$}_seed{seed}",
+                "states_dir": "{$}_seed{seed}",
+                "states_followup_dir": "{$}_seed{seed}",
+                "classifications_regular_dir": "{$}_seed{seed}",
+                "classifications_metamorphic_dir": "{$}_seed{seed}",
+                "classifications_regular_followup_dir": "{$}_seed{seed}",
+                "classifications_metamorphic_followup_dir": "{$}_seed{seed}"
+            },
+            "evosuite": {
+                "workdir": "{$}_seed{seed}",
+                "random_seed": "{seed}"
+            },
+            "randoop": {
+                "workdir": "{$}_seed{seed}",
+                "random_seed": "{seed}"
+            },
+            "method_test_transformer": {
+                "test_inputs_dir": "{$}_seed{seed}",
+                "states_dir": "{$}_seed{seed}",
+                "classifications_regular_dir": "{$}_seed{seed}"
+            },
+            "gassert": {
+                "assertions_dir": "{$}_seed{seed}",
+                "random_seed": "{seed}"
+            },
+            "generate_mrips": {
+                "random_seed": "{seed}"
+            }
+        }
+    },
+    "runs": [
+        { "seed": 11 },
+        { "seed": 12 }
+    ]
+}

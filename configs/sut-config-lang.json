@@ -1,0 +1,14 @@
+{
+    "root": "configs/lang-sut",
+    "classpaths": ["configs/lang-sut/target/classes"],
+    "sources": "configs/lang-sut/src/main/java",
+    "suts": {
+        "LangClass": {
+            "isSorted": [0],
+            "abbreviate": [0],
+            "capitalize": [0],
+            "center": [0],
+            "difference": [0]
+        }
+    }
+}
