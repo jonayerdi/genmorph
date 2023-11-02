@@ -30,6 +30,10 @@ Apache Maven is assumed to be in PATH (the scripts run "mvn" directly).
 
 ### Examples
 
+The example configurations will write intermediate and output files to the `./output_dir_guava`, `./output_dir_lang`, and `./output_dir_math` directories. Here, the `assertions_seed*` directories contain the generated MRs, while the `mrs` directory will contain the corresponding Java assertions (`*.jir.txt` being the input relations as Java code, and `*.jor.txt` being the output relations).
+
+After the evaluation step, the `pitest_seed*` directories will contain files named `mrs_status.csv` and `mutants_killed.csv` with the results for each MR. Note that MRs with FPs (FP column value is not `0.00%` in `mrs_status.csv`) will have a MS of `nan%(0/0)`, and will not be present in `mutants_killed.csv`. This is because PITest does not compute mutation scores when the original SUT does not pass the testsuite, and our own evaluation also considers the MS of invalid MRs (those with FPs) to be 0.
+
 #### Run experiments for Guava
 `python3 scripts/run/genmorph.py all configs/config-all-experiment-guava.json configs/config-all-evaluation-guava.json`
 
