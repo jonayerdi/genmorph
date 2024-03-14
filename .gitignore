@@ -1,5 +1,10 @@
 .vscode
 .gradle
 gradle*
-*.pyc
 output_dir*
+/bin
+/build
+*.zip
+*.pyc
+*.class
+*.log

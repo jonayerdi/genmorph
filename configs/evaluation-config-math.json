@@ -2,7 +2,9 @@
     "@": {
         "paths": {
             "output_dir": "output_dir_math",
+            "output_dir_automr": "output_dir_automr_math",
             "assertions_dir": "assertions_seed{seed}",
+            "assertions_dir_automr": "automrs_commonsmath2/{seed}",
             "states_dir": "states_seed{seed}",
             "build_dir": "build",
             "original_system_name": "original",
