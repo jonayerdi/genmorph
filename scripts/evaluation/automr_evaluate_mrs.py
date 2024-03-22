@@ -2,7 +2,7 @@ from os import makedirs
 from os.path import isfile, join, realpath
 from shutil import rmtree
 
-from evaluation.automr_pitest_generator import automr_pitest_generator, automr_enumerate_dir_mrs, automr_generate_mrs_dir
+from evaluation.automr_pitest_generator import automr_pitest_generator, automr_enumerate_dir_mrs
 from filetypes.sut_config import SUTConfig
 from filetypes.experiment_config import ExperimentConfig
 from filetypes.experiment_multiple_config import ExperimentMultipleConfig
@@ -28,14 +28,6 @@ def evaluation(sut_config: SUTConfig, sut: tuple, experiment_config: ExperimentC
     classpath = [*map(realpath, sut_config.classpaths), build_dir]
     sut_source_relpath = java_class_to_filepath(sut_class, ext='.java')
     source_file = realpath(join(sut_config.sources, sut_source_relpath))
-    # Generate MRs dir if missing
-    for generation_seed in generation_seeds:
-        experiment = paths['assertions_dir'].format(seed=generation_seed)
-        assertions_dir = realpath(join(output_dir, experiment))
-        mrs_dir_experiment = join(mrs_dir, experiment, system_id)
-        if not isnonemptydir(mrs_dir_experiment):
-            log(f'* Collecting MRs')
-            automr_generate_mrs_dir(assertions_dir=assertions_dir, system_id=system_id, out_dir=mrs_dir_experiment)
     # Find method lines in source file
     format_java_source(source_file=source_file)
     method_lines = set(find_method_lines(source_file=source_file, method_name=sut_method, method_index=sut_method_index))
@@ -48,8 +40,8 @@ def evaluation(sut_config: SUTConfig, sut: tuple, experiment_config: ExperimentC
         log(f'* Running PITestGenerator for {system_id}')
         assert automr_pitest_generator(
             classpath=classpath,
-            sut=system_id,
-            mrs=mrs_dir,
+            system_id=system_id,
+            mrs_dir=mrs_dir,
             source_test_inputs=test_inputs_dir,
             output_test_prefix=join(pitest_suite_dir, tests_class_prefix)
         ) == 0, f'Error executing PITestGenerator for {system_id}'
@@ -158,9 +150,10 @@ def evaluate_automr(config: ExperimentMultipleConfig, log=log_stdout):
         for index, experiment_config in enumerate(configs, start=1):
             experiment_config['paths']['output_dir'] = experiment_config['paths']['output_dir_automr']
             experiment_config['paths']['assertions_dir'] = experiment_config['paths']['assertions_dir_automr']
+            experiment_config['paths']['mrs_dir'] = experiment_config['paths']['assertions_dir']
             try:
-                log(f'[{system_id}]({index}/{len(configs)}) EVALUATION STATES')
-                evaluation_states(sut_config=sut_config, sut=sut, experiment_config=experiment_config, log=log)
+                #log(f'[{system_id}]({index}/{len(configs)}) EVALUATION STATES')
+                #evaluation_states(sut_config=sut_config, sut=sut, experiment_config=experiment_config, log=log)
                 log(f'[{system_id}]({index}/{len(configs)}) EVALUATION')
                 evaluation(sut_config=sut_config, sut=sut, experiment_config=experiment_config, log=log)
             except Exception as ex:

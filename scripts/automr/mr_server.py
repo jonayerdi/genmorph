@@ -1,0 +1,123 @@
+#!/usr/bin/env python3
+from os import listdir
+from os.path import join, isdir, basename
+from threading import Thread
+import socket
+
+import numpy as np
+
+import Phase1_PSOSearch
+
+MRS_PATH = join('genmorph', 'output', 'automrs_commonsmath2')
+PORT = 1337
+
+def get_o(program, func_index, i):
+    return program(i, func_index)
+
+def get_verdict_of_AB(program, func_index, A, B, i0, mode_input_relation, mode_output_relation,
+                   degree_of_input_relation,
+                   degree_of_output_relation):
+    # i0 should be a one-dimensional np.array with settings.getNEI(func_index) input values
+    comb_i0 = Phase1_PSOSearch.comb(i0, degree_of_input_relation)
+    try:
+        i = Phase1_PSOSearch.generate_i(func_index,i0, comb_i0, A, mode_input_relation)
+        o = get_o(program, func_index, i)
+        o_flatten = np.ravel(o)
+        comb_o = Phase1_PSOSearch.comb(o_flatten, degree_of_output_relation)
+        distance = np.dot(B, comb_o)
+        return {
+            0: distance < 0.05, # equals
+            1: distance > 0,    # greater-than
+            2: distance < 0,    # less-than
+        }[mode_output_relation](distance)
+    except:
+        return True
+
+def load_results_file(result_path):
+    if result_path.endswith(".npz"):
+        file_name = basename(result_path)
+        func_index = int(file_name[0:file_name.find('_')])
+        parameters = file_name[-26:-17]
+        candidates_all = np.load(result_path)
+        A_candidates = candidates_all["A_candidates"]
+        B_candidates = candidates_all["B_candidates"]
+        MRs = {(func_index, parameters): [A_candidates, B_candidates]}
+        return MRs
+    return {}
+
+def load_results_dir(result_dir, condition=lambda f: True):
+    MRs = {}
+    for file in listdir(result_dir):
+        if condition(join(result_dir, file)):
+            MRs_file = load_results_file(join(result_dir, file))
+            for key in MRs_file:
+                MRs[key] = MRs_file[key]
+    return MRs
+
+def load_results(results_root, condition=lambda f: True):
+    MRs = {}
+    for seed in listdir(results_root):
+        seed_dir = join(results_root, seed, 'phase2')
+        if isdir(seed_dir):
+            MRs[seed] = load_results_dir(result_dir=seed_dir, condition=condition)
+    return MRs
+
+def read_message(socket):
+    # Receive response
+    data = bytes()
+    while True:
+        data += socket.recv(512)
+        if data[-1] == b'\n'[-1]:
+            break
+    # Decode UTF-8 and return
+    return bytes.decode(data, encoding="utf-8").strip()
+
+def write_message(socket, args):
+    socket.sendall(f"{';'.join(map(str, args))}\n".encode('utf-8'))
+
+def program_fn(socket, i):
+    write_message(socket=socket, args=['call', *i])
+    response = read_message(socket=socket)
+    return [float(i) for i in response]
+
+def client_loop(mrs, socket):
+    message = read_message(socket)
+    split = message.split(';')
+    request_id, seed, func_index, parameters, mr_index, input = split[0], split[1], split[2], split[3], split[4], split[5:]
+    
+    A_all, B_all = mrs[seed][(func_index, parameters)]
+    A, B= A_all[mr_index], B_all[mr_index]
+    i0 = np.array([float(i) for i in input])
+
+    parameters_int = [int(e) for e in parameters.split("_")]
+    NOI = parameters_int[0]
+    MIR = parameters_int[1]
+    MOR = parameters_int[2]
+    DIR = parameters_int[3]
+    DOR = parameters_int[4]
+
+    program = lambda i, func_index, socket=socket: program_fn(socket=socket, i=i)
+
+    verdict = get_verdict_of_AB(
+        program=program, func_index=func_index,
+        A=A, B=B, i0=i0,
+        mode_input_relation=MIR,
+        mode_output_relation=MOR,
+        degree_of_input_relation=DIR,
+        degree_of_output_relation=DOR,
+    )
+
+    write_message(socket=socket, args=['verdict', request_id, '1' if verdict else '0'])
+
+def mr_server(mrs_path=MRS_PATH, port=PORT):
+    MRs = load_results(mrs_path)
+    serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    serversocket.bind((socket.gethostname(), port))
+    serversocket.listen(5)
+    while True:
+        (clientsocket, address) = serversocket.accept()
+        ct = Thread(target=client_loop, kwargs={ 'mrs': MRs, 'socket': clientsocket })
+        ct.run()
+
+if __name__ == '__main__':
+    mr_server()

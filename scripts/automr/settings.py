@@ -119,19 +119,26 @@ const_range = [-10, 10]
 SEPARATORS = ["@", "?"]
 SYSTEM_ID = lambda class_name, method_name, method_index: f'{class_name}{SEPARATORS[1]}{method_name}{SEPARATORS[1]}{method_index}'
 
+SYSTEM_IDS = [
+    SYSTEM_ID('MathClass', 'nextPrime', '0'),
+    SYSTEM_ID('MathClass', 'millerRabinPrimeTest', '0'),
+    SYSTEM_ID('MathClass', 'gcd', '0'),
+    SYSTEM_ID('MathClass', 'pow', '0'),
+    SYSTEM_ID('MathClass', 'stirlingS2', '0'),
+    SYSTEM_ID('MathClass', 'acos', '0'),
+    SYSTEM_ID('MathClass', 'log10', '0'),
+    SYSTEM_ID('MathClass', 'sin', '0'),
+    SYSTEM_ID('MathClass', 'sinh', '0'),
+    SYSTEM_ID('MathClass', 'tan', '0'),
+]
+
+FUNC_INDICES = { system_id: i for i, system_id in enumerate(SYSTEM_IDS, start=1) }
+
+def get_func_index(system_id):
+    return FUNC_INDICES[system_id]
+
 def get_system_id(func_index):
-   return[
-       SYSTEM_ID('MathClass', 'nextPrime', '0'),
-       SYSTEM_ID('MathClass', 'millerRabinPrimeTest', '0'),
-       SYSTEM_ID('MathClass', 'gcd', '0'),
-       SYSTEM_ID('MathClass', 'pow', '0'),
-       SYSTEM_ID('MathClass', 'stirlingS2', '0'),
-       SYSTEM_ID('MathClass', 'acos', '0'),
-       SYSTEM_ID('MathClass', 'log10', '0'),
-       SYSTEM_ID('MathClass', 'sin', '0'),
-       SYSTEM_ID('MathClass', 'sinh', '0'),
-       SYSTEM_ID('MathClass', 'tan', '0'),
-   ][func_index - 1]
+   return SYSTEM_IDS[func_index - 1]
 
 def get_input_names(func_index):
     if func_index == 1:
