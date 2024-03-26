@@ -3,35 +3,44 @@ from os import listdir
 from os.path import join, isdir, basename
 from threading import Thread
 import socket
+import traceback
 
 import numpy as np
 
-import Phase1_PSOSearch
+from automr import Phase1_PSOSearch
 
-MRS_PATH = join('genmorph', 'output', 'automrs_commonsmath2')
+MRS_PATH = join('output_dir_automr_math', 'automrs_commonsmath2')
 PORT = 1337
-
-def get_o(program, func_index, i):
-    return program(i, func_index)
 
 def get_verdict_of_AB(program, func_index, A, B, i0, mode_input_relation, mode_output_relation,
                    degree_of_input_relation,
-                   degree_of_output_relation):
+                   degree_of_output_relation,
+                   #log=print,
+                   log=lambda *args, **kwargs: None,
+                   ):
     # i0 should be a one-dimensional np.array with settings.getNEI(func_index) input values
     comb_i0 = Phase1_PSOSearch.comb(i0, degree_of_input_relation)
     try:
-        i = Phase1_PSOSearch.generate_i(func_index,i0, comb_i0, A, mode_input_relation)
-        o = get_o(program, func_index, i)
+        log(A)
+        i = Phase1_PSOSearch.generate_i(func_index, i0, comb_i0, A, mode_input_relation)
+        log(i)
+        o = Phase1_PSOSearch.get_o(program, func_index, i)
         o_flatten = np.ravel(o)
         comb_o = Phase1_PSOSearch.comb(o_flatten, degree_of_output_relation)
+        log(o_flatten)
+        log(B)
+        log(comb_o)
         distance = np.dot(B, comb_o)
+        log(distance)
+        log(mode_output_relation)
         return {
-            0: distance < 0.05, # equals
-            1: distance > 0,    # greater-than
-            2: distance < 0,    # less-than
-        }[mode_output_relation](distance)
-    except:
-        return True
+            1: distance < 0.05, # equals
+            2: distance > 0,    # greater-than
+            3: distance < 0,    # less-than
+        }[mode_output_relation]
+    except Exception:
+        traceback.print_exc()
+        return False
 
 def load_results_file(result_path):
     if result_path.endswith(".npz"):
@@ -78,12 +87,16 @@ def write_message(socket, args):
 def program_fn(socket, i):
     write_message(socket=socket, args=['call', *i])
     response = read_message(socket=socket)
-    return [float(i) for i in response]
+    return [float(i) for i in response.split(';')]
 
 def client_loop(mrs, socket):
     message = read_message(socket)
     split = message.split(';')
-    request_id, seed, func_index, parameters, mr_index, input = split[0], split[1], split[2], split[3], split[4], split[5:]
+    seed = split[0]
+    func_index = int(split[1])
+    parameters = split[2]
+    mr_index = int(split[3])
+    input = split[4:]
     
     A_all, B_all = mrs[seed][(func_index, parameters)]
     A, B= A_all[mr_index], B_all[mr_index]
@@ -107,17 +120,28 @@ def client_loop(mrs, socket):
         degree_of_output_relation=DOR,
     )
 
-    write_message(socket=socket, args=['verdict', request_id, '1' if verdict else '0'])
+    write_message(socket=socket, args=['verdict', '1' if verdict else '0'])
 
-def mr_server(mrs_path=MRS_PATH, port=PORT):
+def mr_server(mrs_path=MRS_PATH, host='0.0.0.0', port=PORT, log=print):
     MRs = load_results(mrs_path)
     serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    serversocket.bind((socket.gethostname(), port))
+    serversocket.bind((host, port))
     serversocket.listen(5)
+    log(f'[mr_server.py] Listening at {host}:{port}')
     while True:
-        (clientsocket, address) = serversocket.accept()
-        ct = Thread(target=client_loop, kwargs={ 'mrs': MRs, 'socket': clientsocket })
-        ct.run()
+        address = None
+        try:
+            (clientsocket, address) = serversocket.accept()
+            log(f'[mr_server.py] Client connected from: {address}')
+            ct = Thread(target=client_loop, kwargs={ 'mrs': MRs, 'socket': clientsocket })
+            ct.run()
+            clientsocket.close()
+        except Exception:
+            log(f'[mr_server.py] Exception: {traceback.format_exc()}')
+        log(f'[mr_server.py] Client disconnected: {address}')
+
+def main():
+    mr_server()
 
 if __name__ == '__main__':
-    mr_server()
+    main()

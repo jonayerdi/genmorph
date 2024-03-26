@@ -1,9 +1,10 @@
 import numpy as np
 import sys
 
-from JavaPythonBridge.client.ClientBridge import ClientBridge
-
-lib = ClientBridge()
+lib = None
+if 'JavaPythonBridge' in sys.modules:
+    from JavaPythonBridge.client.ClientBridge import ClientBridge
+    lib = ClientBridge()
 
 map_index_func = {1:'nextprime', 2:'isprime', 3:'gcd', 4:'pow', 5:'stirling', 6:'acos', 7:'log10', 8:'sin', 9:'sinh', 10:'tan'}
 

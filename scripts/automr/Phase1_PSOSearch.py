@@ -8,7 +8,7 @@ from time import time
 from scipy import special
 import random
 
-import settings
+from automr import settings
 
 # calculate how many combinations are there for choosing no_of_select elements from no_of_elements
 def get_size_of_comb(no_of_elements, no_of_select):
