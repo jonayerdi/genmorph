@@ -8,6 +8,19 @@ from strategy.genmorph import SYSTEM_ID
 
 AUTOMR_ADDRESS, AUTOMR_PORT = '127.0.0.1', 1337
 
+_NEW_TO_OLD_SYSTEM_ID = {
+    "MathClass?nextPrime?0": "org.apache.commons.math3.primes.Primes%nextPrime%0",
+    "MathClass?millerRabinPrimeTest?0": "org.apache.commons.math3.primes.SmallPrimes%millerRabinPrimeTest%0",
+    "MathClass?gcd?0": "org.apache.commons.math3.util.ArithmeticUtils%gcd%0",
+    "MathClass?pow?0": "org.apache.commons.math3.util.ArithmeticUtils%pow%0",
+    "MathClass?stirlingS2?0": "org.apache.commons.math3.util.CombinatoricsUtils%stirlingS2%0",
+    "MathClass?acos?0": "org.apache.commons.math3.util.FastMath%acos%0",
+    "MathClass?log10?0": "org.apache.commons.math3.util.FastMath%log10%0",
+    "MathClass?sin?0": "org.apache.commons.math3.util.FastMath%sin%0",
+    "MathClass?sinh?0": "org.apache.commons.math3.util.FastMath%sinh%0",
+    "MathClass?tan?0": "org.apache.commons.math3.util.FastMath%tan%0"
+}
+
 def automr_pitest_generator_helpers(function_name, inputs_count=1, indent='', automr_address=AUTOMR_ADDRESS, automr_port=AUTOMR_PORT):
     inputs = ','.join((f'inputs[{i+1}]' for i in range(inputs_count)))
 
@@ -47,7 +60,10 @@ def automr_pitest_generator_helpers(function_name, inputs_count=1, indent='', au
     out += f'{indent*4}String[] parts = message.split(";");\n'
     out += f'{indent*4}switch (parts[0]) {{\n'
     out += f'{indent*5}case "call":\n'
-    out += f'{indent*6}String result = String.valueOf({function_name}({inputs}));\n'
+    out += f'{indent*6}String result = "0";\n'
+    out += f'{indent*6}try {{\n'
+    out += f'{indent*7}result = String.valueOf({function_name}({inputs}));\n'
+    out += f'{indent*6}}} catch (Exception ignore) {{}}\n'
     out += f'{indent*6}sendMessage(socket, result);\n'
     out += f'{indent*6}break;\n'
     out += f'{indent*5}case "verdict":\n'
@@ -95,36 +111,39 @@ def get_testcase_inputs(filename):
     return inputs
 
 def get_testcases(source_test_inputs, system_id):
+    system_id = _NEW_TO_OLD_SYSTEM_ID[system_id] # FIXME: Mapping for old system_ids
     for f in listdir(join(source_test_inputs, system_id)):
         if f.endswith('.methodinputs'):
-            name = f[len(system_id):-len('.methodinputs')]
+            name = f[len(system_id) + 1:-len('.methodinputs')]
             inputs = get_testcase_inputs(join(source_test_inputs, system_id, f))
             yield { 'name': name, 'inputs': inputs }
 
-def automr_pitest_generator(classpath, sut, mrs_dir, source_test_inputs, output_test_prefix):
+def automr_pitest_generator(sut, mrs_dir, source_test_inputs, output_test_prefix):
     sut_class, sut_method, sut_method_index = sut
     system_id = SYSTEM_ID(sut_class, sut_method, sut_method_index)
     function_name = f'{sut_class}.{sut_method}'
     func_index = settings.get_func_index(system_id)
-    MRs = load_results_dir(result_dir=join(mrs_dir, 'phase2'), condition=lambda f: split(f)[1].startswith(f'{func_index}_'))
-    testcases = list(get_testcases(source_test_inputs))
-    for (_func_index, parameters), v in MRs.items():
-        if _func_index != func_index:
-            continue
-        A_all=v[0]
-        for mr_index in range(A_all.shape[0]):
-            testsuite_file = f'{output_test_prefix}_{func_index}_{parameters}_{mr_index}.java'
-            testsuite_class = splitext(split(testsuite_file)[1])[0]
-            automr_params = ';'.join([seed, func_index, parameters, mr_index])
-            with open(testsuite_file, mode='w', encoding='utf-8', newline='\n') as out:
-                testsuite = automr_pitest_generator_testsuite(function_name=function_name, inputs_count=settings.getNEI(func_index), testsuite_class=testsuite_class, testcases=testcases, automr_params=automr_params)
-                out.write(testsuite)
+    for seed in listdir(mrs_dir):
+        MRs = load_results_dir(result_dir=join(mrs_dir, seed, 'phase2'), condition=lambda f: split(f)[1].startswith(f'{func_index}_'))
+        testcases = list(get_testcases(source_test_inputs))
+        for (_func_index, parameters), v in MRs.items():
+            if _func_index != func_index:
+                continue
+            A_all=v[0]
+            for mr_index in range(A_all.shape[0]):
+                testsuite_file = f'{output_test_prefix}_{func_index}_{parameters}_{mr_index}.java'
+                testsuite_class = splitext(split(testsuite_file)[1])[0]
+                automr_params = ';'.join([seed, func_index, parameters, mr_index])
+                with open(testsuite_file, mode='w', encoding='utf-8', newline='\n') as out:
+                    testsuite = automr_pitest_generator_testsuite(function_name=function_name, inputs_count=settings.getNEI(func_index), testsuite_class=testsuite_class, testcases=testcases, automr_params=automr_params)
+                    out.write(testsuite)
     return 0
 
 def automr_enumerate_dir_mrs(mrs_dir, system_id):
     func_index = settings.get_func_index(system_id)
-    MRs = load_results_dir(result_dir=join(mrs_dir, 'phase2'), condition=lambda f: split(f)[1].startswith(f'{func_index}_'))
-    for (func_index, parameters), v in MRs.items():
-        A_all=v[0]
-        for mr_index in range(A_all.shape[0]):
-            yield f'{func_index}_{parameters}_{mr_index}'
+    for seed in listdir(mrs_dir):
+        MRs = load_results_dir(result_dir=join(mrs_dir, seed, 'phase2'), condition=lambda f: split(f)[1].startswith(f'{func_index}_'))
+        for (func_index, parameters), v in MRs.items():
+            A_all=v[0]
+            for mr_index in range(A_all.shape[0]):
+                yield seed, f'{func_index}_{parameters}_{mr_index}'

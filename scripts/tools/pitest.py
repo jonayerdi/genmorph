@@ -95,7 +95,7 @@ PITEST_POM_TEMPLATE = '''<?xml version="1.0" encoding="UTF-8"?>
                         <avoidCallsTo>org.apache.commons.logging</avoidCallsTo>
                         <avoidCallsTo>ch.usi.gassert.serialization</avoidCallsTo>
                     </avoidCallsTo>
-                    <threads>16</threads>
+                    <threads>1</threads>
                     <timestampedReports>false</timestampedReports>
                 </configuration>
             </plugin>

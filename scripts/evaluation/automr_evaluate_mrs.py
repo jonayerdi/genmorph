@@ -39,7 +39,6 @@ def evaluation(sut_config: SUTConfig, sut: tuple, experiment_config: ExperimentC
     else:
         log(f'* Running PITestGenerator for {system_id}')
         assert automr_pitest_generator(
-            classpath=classpath,
             sut=sut,
             mrs_dir=mrs_dir,
             source_test_inputs=test_inputs_dir,

@@ -34,9 +34,9 @@ def get_verdict_of_AB(program, func_index, A, B, i0, mode_input_relation, mode_o
         log(distance)
         log(mode_output_relation)
         return {
-            1: distance < 0.05, # equals
-            2: distance > 0,    # greater-than
-            3: distance < 0,    # less-than
+            1: np.abs(distance) < 0.05, # equals
+            2: distance > 0,            # greater-than
+            3: distance < 0,            # less-than
         }[mode_output_relation]
     except Exception:
         traceback.print_exc()
