@@ -9,16 +9,16 @@ from strategy.genmorph import SYSTEM_ID
 AUTOMR_ADDRESS, AUTOMR_PORT = '127.0.0.1', 1337
 
 _NEW_TO_OLD_SYSTEM_ID = {
-    "MathClass?nextPrime?0": "org.apache.commons.math3.primes.Primes%nextPrime%0",
-    "MathClass?millerRabinPrimeTest?0": "org.apache.commons.math3.primes.SmallPrimes%millerRabinPrimeTest%0",
-    "MathClass?gcd?0": "org.apache.commons.math3.util.ArithmeticUtils%gcd%0",
-    "MathClass?pow?0": "org.apache.commons.math3.util.ArithmeticUtils%pow%0",
-    "MathClass?stirlingS2?0": "org.apache.commons.math3.util.CombinatoricsUtils%stirlingS2%0",
-    "MathClass?acos?0": "org.apache.commons.math3.util.FastMath%acos%0",
-    "MathClass?log10?0": "org.apache.commons.math3.util.FastMath%log10%0",
-    "MathClass?sin?0": "org.apache.commons.math3.util.FastMath%sin%0",
-    "MathClass?sinh?0": "org.apache.commons.math3.util.FastMath%sinh%0",
-    "MathClass?tan?0": "org.apache.commons.math3.util.FastMath%tan%0"
+    SYSTEM_ID("MathClass", "nextPrime", "0"): "org.apache.commons.math3.primes.Primes%nextPrime%0",
+    SYSTEM_ID("MathClass", "millerRabinPrimeTest", "0"): "org.apache.commons.math3.primes.SmallPrimes%millerRabinPrimeTest%0",
+    SYSTEM_ID("MathClass", "gcd", "0"): "org.apache.commons.math3.util.ArithmeticUtils%gcd%0",
+    SYSTEM_ID("MathClass", "pow", "0"): "org.apache.commons.math3.util.ArithmeticUtils%pow%0",
+    SYSTEM_ID("MathClass", "stirlingS2", "0"): "org.apache.commons.math3.util.CombinatoricsUtils%stirlingS2%0",
+    SYSTEM_ID("MathClass", "acos", "0"): "org.apache.commons.math3.util.FastMath%acos%0",
+    SYSTEM_ID("MathClass", "log10", "0"): "org.apache.commons.math3.util.FastMath%log10%0",
+    SYSTEM_ID("MathClass", "sin", "0"): "org.apache.commons.math3.util.FastMath%sin%0",
+    SYSTEM_ID("MathClass", "sinh", "0"): "org.apache.commons.math3.util.FastMath%sinh%0",
+    SYSTEM_ID("MathClass", "tan", "0"): "org.apache.commons.math3.util.FastMath%tan%0"
 }
 
 def automr_pitest_generator_helpers(function_name, inputs_count=1, indent='', automr_address=AUTOMR_ADDRESS, automr_port=AUTOMR_PORT):
@@ -81,7 +81,7 @@ def automr_pitest_generator_helpers(function_name, inputs_count=1, indent='', au
     return out
 
 def automr_pitest_generator_testcase(testcase, automr_params, indent=''):
-    out = f'{indent}@Test\n'
+    out = f'{indent}@Test(timeout = 10000)\n'
     out += f'{indent*2}public void {testcase["name"]}() {{\n'
     out += f'{indent*2}verdict = automr("{";".join((*automr_params, *testcase["inputs"]))}")\n'
     out += f'{indent*2}org.junit.Assert.assertTrue(verdict);\n'
@@ -125,7 +125,7 @@ def automr_pitest_generator(sut, mrs_dir, source_test_inputs, output_test_prefix
     func_index = settings.get_func_index(system_id)
     for seed in listdir(mrs_dir):
         MRs = load_results_dir(result_dir=join(mrs_dir, seed, 'phase2'), condition=lambda f: split(f)[1].startswith(f'{func_index}_'))
-        testcases = list(get_testcases(source_test_inputs))
+        testcases = list(get_testcases(source_test_inputs=source_test_inputs, system_id=system_id))
         for (_func_index, parameters), v in MRs.items():
             if _func_index != func_index:
                 continue

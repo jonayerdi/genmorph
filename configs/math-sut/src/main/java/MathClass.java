@@ -1490,8 +1490,11 @@ public class MathClass {
     }
 
     private static final double[] EXP_FRAC_TABLE_A = EXP_FRAC_A.clone();
+
     private static final double[] EXP_FRAC_TABLE_B = EXP_FRAC_B.clone();
+
     private static final double[] EXP_INT_TABLE_A = EXP_INT_A.clone();
+
     private static final double[] EXP_INT_TABLE_B = EXP_INT_B.clone();
 
     /**

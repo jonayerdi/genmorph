@@ -114,10 +114,13 @@ const_range = [-10, 10]
 
 # GenMorph stuff
 
- # Separators we use for file/directory naming schemes.
+# Separators we use for file/directory naming schemes.
 # Some characters like '$' or '%' can break tools like Maven on Linux.
 # Keep in sync with the definitions for Java: ch.usi.gassert.util.FileUtils
-SEPARATORS = ["@", "?"]
+if sys.platform == 'win32':
+    SEPARATORS = ["!", "%"]
+else:
+    SEPARATORS = ["@", "?"]
 SYSTEM_ID = lambda class_name, method_name, method_index: f'{class_name}{SEPARATORS[1]}{method_name}{SEPARATORS[1]}{method_index}'
 
 SYSTEM_IDS = [

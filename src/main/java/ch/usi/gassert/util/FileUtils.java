@@ -13,11 +13,22 @@ import java.util.stream.Stream;
 public class FileUtils {
 
     public static final String PATH_SEPARATOR = System.getProperty("path.separator");
+    public static final boolean IS_OS_WINDOWS = System.getProperty("os.name").startsWith("Windows");
 
     // Separators we use for file/directory naming schemes.
     // Some characters like '$' or '%' can break tools like Maven on Linux.
     // Keep in sync with the definitions for Python: scripts/config.py
-    public static final String[] SEPARATORS = new String[] { "@", "?" };
+    public static final String[] SEPARATORS_WINDOWS = new String[] { "!", "%" };
+    public static final String[] SEPARATORS_UNIX = new String[] { "@", "?" };
+
+    public static final String[] SEPARATORS;
+    static {
+        if (IS_OS_WINDOWS) {
+            SEPARATORS = SEPARATORS_WINDOWS;
+        } else {
+            SEPARATORS = SEPARATORS_UNIX;
+        }
+    }
 
     public static String[] splitExtension(final String filename) {
         final String[] parts = filename.split("\\.");

@@ -10,7 +10,10 @@ import sys
 # Separators we use for file/directory naming schemes.
 # Some characters like '$' or '%' can break tools like Maven on Linux.
 # Keep in sync with the definitions for Java: ch.usi.gassert.util.FileUtils
-SEPARATORS = ["@", "?"]
+if sys.platform == 'win32':
+    SEPARATORS = ["!", "%"]
+else:
+    SEPARATORS = ["@", "?"]
 
 SCRIPTS_ROOT = realpath(dirname(realpath(__file__)))
 PROJECT_ROOT = realpath(join(SCRIPTS_ROOT, '..'))
