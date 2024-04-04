@@ -19,10 +19,26 @@
                 "tests_dir": "{$}_seed{seed}",
                 "random_seed": "{seed}"
             },
-            "generation_seeds": [11]
+            "generation_seeds": [
+                11, 12, 13,
+                21, 22, 23,
+                31, 32, 33,
+                41, 42, 43
+            ]
         }
     },
     "runs": [
+        { "seed": 0 },
+        { "seed": 1 },
+        { "seed": 2 },
+        { "seed": 3 },
+        { "seed": 4 },
+        { "seed": 5 },
+        { "seed": 6 },
+        { "seed": 7 },
+        { "seed": 8 },
+        { "seed": 9 },
+        { "seed": 10 },
         { "seed": 11 }
     ]
 }
