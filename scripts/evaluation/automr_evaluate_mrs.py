@@ -38,6 +38,7 @@ def evaluation(sut_config: SUTConfig, sut: tuple, experiment_config: ExperimentC
         log(f'* Found PITest suites in {pitest_suite_dir}')
     else:
         log(f'* Running PITestGenerator for {system_id}')
+        makedirs(pitest_suite_dir, exist_ok=True)
         assert automr_pitest_generator(
             sut=sut,
             mrs_dir=mrs_dir,
