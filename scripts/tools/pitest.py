@@ -262,9 +262,9 @@ MVN_SHELL = sys.platform == 'win32' # On Windows, we cannot start the subprocess
 def test(workdir):
     return Popen(shell=MVN_SHELL, cwd=workdir, args=['mvn', '-q', '-B', '-Dmaven.test.failure.ignore=true', 'test']).wait()
 
-def pitest(workdir):
+def pitest(workdir, timeout=None):
     #return Popen(shell=SHELL, cwd=workdir, args=['mvn', '-q', '-B', 'test-compile', 'org.pitest:pitest-maven:mutationCoverage']).wait()
-    return Popen(shell=MVN_SHELL, cwd=workdir, args=['mvn', '-q', '-B', 'org.pitest:pitest-maven:mutationCoverage']).wait()
+    return Popen(shell=MVN_SHELL, cwd=workdir, args=['mvn', '-q', '-B', 'org.pitest:pitest-maven:mutationCoverage']).wait(timeout=timeout)
 
 REGEX_PITEST_FAILING_LINE = re.compile(r'^.+name=(.+)\((.+)\)] did not pass without mutation\.\s*$')
 def stderr_failing_tests(lines):

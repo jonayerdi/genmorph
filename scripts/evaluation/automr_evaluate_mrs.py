@@ -1,6 +1,7 @@
 from os import makedirs
 from os.path import isfile, join, realpath
 from shutil import rmtree
+from subprocess import TimeoutExpired
 
 from evaluation.automr_pitest_generator import automr_pitest_generator, automr_enumerate_dir_mrs
 from filetypes.sut_config import SUTConfig
@@ -126,7 +127,13 @@ def evaluation(sut_config: SUTConfig, sut: tuple, experiment_config: ExperimentC
                     )
                     # Run PITest
                     log(f'* Running PITest for {system_id}:{experiment}_{mr}')
-                    assert pitest.pitest(workdir=pitest_workdir) == 0, f'Error executing PITest for {system_id}'
+                    while True:
+                        try:
+                            assert pitest.pitest(workdir=pitest_workdir, timeout=30) == 0, f'Error executing PITest for {system_id}'
+                        except TimeoutExpired:
+                            log(f'* PITest timeout, retrying')
+                            continue
+                        break
                     # Move out PITest reports
                     pit_reports_dir = join(pitest_workdir, 'target', 'pit-reports')
                     moveall(src=pit_reports_dir, dst=pit_reports_sut_dir)

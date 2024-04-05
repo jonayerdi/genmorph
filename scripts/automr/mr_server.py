@@ -124,12 +124,15 @@ def client_loop(mrs, socket):
 
     write_message(socket=socket, args=['verdict', '1' if verdict else '0'])
 
-def mr_server(mrs_path=MRS_PATH, host='0.0.0.0', port=PORT, log=print):
+def mr_server(mrs_path=MRS_PATH, host='0.0.0.0', port=PORT,
+              #log=print,
+              log=lambda *args, **kwargs: None,
+              ):
     MRs = load_results(mrs_path)
     serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     serversocket.bind((host, port))
     serversocket.listen(5)
-    log(f'[mr_server.py] Listening at {host}:{port}')
+    print(f'[mr_server.py] Listening at {host}:{port}')
     while True:
         address = None
         try:
