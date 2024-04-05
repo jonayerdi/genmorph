@@ -23,7 +23,7 @@ _NEW_TO_OLD_SYSTEM_ID = {
 
 def automr_pitest_generator_helpers(function_name, inputs_types, inputs_count=1, indent='', automr_address=AUTOMR_ADDRESS, automr_port=AUTOMR_PORT):
     inputs_typecast = {
-        int: lambda x: f'Integer.parseInt({x})',
+        int: lambda x: f'(int) Double.parseDouble({x})',
         float: lambda x: f'Double.parseDouble({x})',
     }
     inputs = ','.join((inputs_typecast[inputs_types[i]](f'parts[{i+1}]') for i in range(inputs_count)))
@@ -160,7 +160,7 @@ def automr_pitest_generator(sut, mrs_dir, source_test_inputs, output_test_prefix
                 continue
             A_all=v[0]
             for mr_index in range(A_all.shape[0]):
-                testsuite_file = f'{output_test_prefix}_seed{seed}_{func_index}_{parameters}_{mr_index}.java'
+                testsuite_file = f'{output_test_prefix}_{seed}_{func_index}_{parameters}_{mr_index}.java'
                 testsuite_class = splitext(split(testsuite_file)[1])[0]
                 automr_params = ';'.join(map(str, [seed, func_index, parameters, mr_index]))
                 with open(testsuite_file, mode='w', encoding='utf-8', newline='\n') as out:

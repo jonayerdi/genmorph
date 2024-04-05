@@ -21,23 +21,25 @@ def get_verdict_of_AB(program, func_index, A, B, i0, mode_input_relation, mode_o
     # i0 should be a one-dimensional np.array with settings.getNEI(func_index) input values
     comb_i0 = Phase1_PSOSearch.comb(i0, degree_of_input_relation)
     try:
-        log(A)
+        log(f'A={A}')
         i = Phase1_PSOSearch.generate_i(func_index, i0, comb_i0, A, mode_input_relation)
-        log(i)
+        log(f'i={i}')
         o = Phase1_PSOSearch.get_o(program, func_index, i)
         o_flatten = np.ravel(o)
         comb_o = Phase1_PSOSearch.comb(o_flatten, degree_of_output_relation)
-        log(o_flatten)
-        log(B)
-        log(comb_o)
+        log(f'o_flatten={o_flatten}')
+        log(f'B={B}')
+        log(f'comb_o={comb_o}')
         distance = np.dot(B, comb_o)
-        log(distance)
-        log(mode_output_relation)
-        return {
+        log(f'distance={distance}')
+        log(f'mode_output_relation={mode_output_relation}')
+        verdict = {
             1: np.abs(distance) < 0.05, # equals
             2: distance > 0,            # greater-than
             3: distance < 0,            # less-than
         }[mode_output_relation]
+        log(f'verdict={verdict}')
+        return verdict
     except Exception:
         traceback.print_exc()
         return False
