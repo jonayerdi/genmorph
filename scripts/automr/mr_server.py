@@ -86,10 +86,19 @@ def read_message(socket):
 def write_message(socket, args):
     socket.sendall(f"{';'.join(map(str, args))}\n".encode('utf-8'))
 
+def to_float(s):
+    value = {
+        'true': 1,
+        'false': 0,
+    }.get(s)
+    if value is None:
+        value = float(s)
+    return value
+
 def program_fn(socket, i):
     write_message(socket=socket, args=['call', *i])
     response = read_message(socket=socket)
-    return [float(i) for i in response.split(';')]
+    return [to_float(i) for i in response.split(';')]
 
 def client_loop(mrs, socket):
     message = read_message(socket)

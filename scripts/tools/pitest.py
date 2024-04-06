@@ -97,6 +97,7 @@ PITEST_POM_TEMPLATE = '''<?xml version="1.0" encoding="UTF-8"?>
                     </avoidCallsTo>
                     <threads>1</threads>
                     <timestampedReports>false</timestampedReports>
+                    <timeoutConstant>10000</timeoutConstant>
                 </configuration>
             </plugin>
         </plugins>  
