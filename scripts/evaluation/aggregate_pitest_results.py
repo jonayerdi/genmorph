@@ -81,10 +81,21 @@ def collect_pitest_results(pitest_result_dirs, fps=[]):
                 mks[sut][experiment].append(mk)
     return pzs, pzo, mks
 
+def trailing_digits(s):
+    digits = 0
+    i = len(s) - 1
+    while s[i].isdigit() and i >= 0:
+        digits += 1
+        i -= 1
+    return digits
+
 def same_seed(experiment1, experiment2):
-    # FIXME: We assume 2-digit seeds
-    seed1 = int(experiment1.split('/')[0][-2:])
-    seed2 = int(experiment2.split('/')[0][-2:])
+    pitest1 = experiment1.split('/')[0]
+    pitest2 = experiment2.split('/')[0]
+    digits1 = trailing_digits(pitest1)
+    digits2 = trailing_digits(pitest2)
+    seed1 = int(pitest1[-digits1:])
+    seed2 = int(pitest2[-digits2:])
     return seed1 == seed2
 
 def aggregate_mks(it, mutants):
